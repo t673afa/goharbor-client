@@ -3,6 +3,7 @@ package apiv2
 import (
 	"context"
 	"github.com/mittwald/goharbor-client/v5/apiv2/pkg/clients/artifact"
+	"github.com/mittwald/goharbor-client/v5/apiv2/pkg/clients/label"
 	"github.com/mittwald/goharbor-client/v5/apiv2/pkg/clients/repository"
 	"net/url"
 	"strings"
@@ -43,6 +44,7 @@ type Client interface {
 	artifact.Client
 	gc.Client
 	health.Client
+	label.Client
 	member.Client
 	project.Client
 	projectmeta.Client
@@ -64,6 +66,7 @@ type RESTClient struct {
 	artifact    *artifact.RESTClient
 	gc          *gc.RESTClient
 	health      *health.RESTClient
+	label       *label.RESTClient
 	member      *member.RESTClient
 	project     *project.RESTClient
 	projectmeta *projectmeta.RESTClient
@@ -90,6 +93,7 @@ func NewRESTClient(v2Client *v2client.Harbor, opts *config.Options, authInfo run
 		artifact:    artifact.NewClient(v2Client, opts, authInfo),
 		gc:          gc.NewClient(v2Client, opts, authInfo),
 		health:      health.NewClient(v2Client, opts, authInfo),
+		label:       label.NewClient(v2Client, opts, authInfo),
 		member:      member.NewClient(v2Client, opts, authInfo),
 		project:     project.NewClient(v2Client, opts, authInfo),
 		projectmeta: projectmeta.NewClient(v2Client, opts, authInfo),
@@ -199,6 +203,28 @@ func (c *RESTClient) ResetGarbageCollection(ctx context.Context) error {
 
 func (c *RESTClient) GetHealth(ctx context.Context) (*modelv2.OverallHealthStatus, error) {
 	return c.health.GetHealth(ctx)
+}
+
+// Label Client
+
+func (c *RESTClient) CreateLabel(ctx context.Context, l *modelv2.Label) error {
+	return c.label.CreateLabel(ctx, l)
+}
+
+func (c *RESTClient) GetLabelByID(ctx context.Context, id int64) (*modelv2.Label, error) {
+	return c.label.GetLabelByID(ctx, id)
+}
+
+func (c *RESTClient) ListLabels(ctx context.Context, name string, projectID *int64, scope label.Scope) ([]*modelv2.Label, error) {
+	return c.label.ListLabels(ctx, name, projectID, scope)
+}
+
+func (c *RESTClient) DeleteLabel(ctx context.Context, id int64) error {
+	return c.label.DeleteLabel(ctx, id)
+}
+
+func (c *RESTClient) UpdateLabel(ctx context.Context, id int64, l *modelv2.Label) error {
+	return c.label.UpdateLabel(ctx, id, l)
 }
 
 // Member Client
